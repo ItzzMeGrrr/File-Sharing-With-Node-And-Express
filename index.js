@@ -7,7 +7,7 @@ import os from 'os';
 const app = express();
 const port = 3000;
 let filesPath;
-//Check if --path wos given
+
 if (process.argv.length < 3) {
     filesPath = process.cwd();
 }
