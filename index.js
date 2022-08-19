@@ -9,10 +9,18 @@ const port = 3000;
 let filesPath;
 
 if (process.argv.length < 3) {
-    filesPath = process.cwd();
+    filesPath = process.cwd() + "/";
 }
 else {
     filesPath = process.argv[2];
+    if (!filesPath.endsWith("/") || !filesPath.endsWith("\\")) {
+        if (os.platform() == 'win32') {
+            filesPath += "\\";
+        }
+        else{
+            filesPath += "/";
+        }
+    }
 }
 
 
@@ -80,7 +88,7 @@ app.get('/', (req, res) => {
 });
 app.get('/get/:file', (req, res) => {
     console.log(`sending ${req.params.file}`);
-    let file = req.params.file;
+    let file = filesPath + req.params.file;
     let data = fs.readFileSync(file);
     res.send(data);
 });
