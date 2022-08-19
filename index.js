@@ -28,7 +28,7 @@ const getFileInfoFromFolder = (route) => {
     const response = [];
     for (let file of files) {
         if (!fs.lstatSync(path.join(route, file)).isDirectory()) {
-            const fileSizeInBytes = fs.statSync(route + "\\" + file).size;
+            const fileSizeInBytes = fs.statSync(route + "/" + file).size;
             response.push({ name: file, size: getFileSizeSuffix(fileSizeInBytes), type: 'file' });
         }
     }
