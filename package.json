@@ -1,0 +1,15 @@
+{
+  "name": "mobile-file-sharing",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module"
+  ,
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19"
+  },
+  "scripts": {
+    "development": "nodemon index.js"
+  }
+}
