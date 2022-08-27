@@ -86,11 +86,11 @@ const getNetworkInterfaces = () => {
 
 const generateQR = async text => {
     try {
-      console.log(await QRCode.toString(text))
+        console.log(await QRCode.toString(text))
     } catch (err) {
-      console.error(err)
+        console.error(err)
     }
-  }
+}
 
 const networkInterfaces = getNetworkInterfaces();
 readline.emitKeypressEvents(process.stdin);
@@ -100,7 +100,7 @@ if (process.stdin.isTTY) {
 }
 
 process.stdin.on('keypress', (str, key) => {
-    if (key.ctrl && key.name === 'c') {
+    if (key.ctrl && key.name === 'c' || key.esc) {
         console.log("Exitting...")
         process.exit();
     }
@@ -183,10 +183,19 @@ app.listen(port, () => {
         console.log(`+ [${ifaceCount++}] http://${iface.f.address}:${port}`);
     }
     console.log("Press number in front of link to get qr for the link.");
-});
+}
+);
 
 process.on('SIGINT', () => {
     console.info('Exiting...');
     process.exit();
 
 });
+
+process.on('uncaughtException', function (err) {
+    if (err.code === 'EADDRINUSE')
+        console.log(`Port ${port} is already in use.`);
+    else
+        console.log(err);
+    process.exit(1);
+}); 
