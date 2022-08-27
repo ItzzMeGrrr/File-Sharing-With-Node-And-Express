@@ -3,8 +3,11 @@ import fs, { readFileSync } from 'fs';
 import multer from 'multer';
 import path from 'path';
 import os from 'os';
+import readline from "readline";
+import QRCode from 'qrcode';
 
 const app = express();
+
 const port = 3000;
 let filesPath;
 
@@ -17,12 +20,11 @@ else {
         if (os.platform() == 'win32') {
             filesPath += "\\";
         }
-        else{
+        else {
             filesPath += "/";
         }
     }
 }
-
 
 const getFileSizeSuffix = (size) => {
     if (size == 0) return '0 Bytes';
@@ -31,6 +33,7 @@ const getFileSizeSuffix = (size) => {
     var i = Math.floor(Math.log(size) / Math.log(k));
     return parseFloat((size / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
+
 const getFileInfoFromFolder = (route) => {
     const files = fs.readdirSync(route, 'utf8');
     const response = [];
@@ -42,6 +45,7 @@ const getFileInfoFromFolder = (route) => {
     }
     return response;
 }
+
 String.prototype.format = function () {
     var args = arguments;
     return this.replace(/{([0-9]+)}/g, function (match, index) {
@@ -62,6 +66,7 @@ const listToHtml = (list) => {
     });
     return html;
 }
+
 const getNetworkInterfaces = () => {
     const list = [];
     const ilist = [];
@@ -78,20 +83,56 @@ const getNetworkInterfaces = () => {
     }
     return list.length > 0 ? list : ilist;
 }
+
+const generateQR = (address) => {
+    QRCode.toString(address, { type: 'terminal' }, function (err, url) {
+        console.log(url);
+    })
+}
+
+const networkInterfaces = getNetworkInterfaces();
+console.log(networkInterfaces.length)
+readline.emitKeypressEvents(process.stdin);
+
+if (process.stdin.isTTY) {
+    process.stdin.setRawMode(true);
+}
+
+process.stdin.on('keypress', (str, key) => {
+    if (key.ctrl && key.name === 'c') {
+        console.log("Exitting...")
+        process.exit();
+    }
+    if (str.charCodeAt(0) != 13 && str.charCodeAt(0) != 10) {
+        if (str > networkInterfaces.length - 1) {
+            console.log(`No address for ${str}`)
+        }
+        else {
+            if (!isNaN(str)) {
+                let address = `http://${networkInterfaces[str].f.address}:${port}`;
+                console.log("Generating for ", address);
+                generateQR(address);
+            }
+        }
+    }
+});
+
 app.use('/static', express.static('static'));
-const upload = multer({ dest: './received' })
+const upload = multer({ dest: './received' });
 app.get('/', (req, res) => {
     let files = getFileInfoFromFolder(filesPath);
     let template = readFileSync('./template.html');
     let html = template.toString().format(listToHtml(files));
     res.send(html);
 });
+
 app.get('/get/:file', (req, res) => {
     console.log(`sending ${req.params.file}`);
     let file = filesPath + req.params.file;
     let data = fs.readFileSync(file);
     res.send(data);
 });
+
 app.post('/upload', upload.array('uploaded_file'), (req, res, next) => {
     console.log(`Received ${req.files.length} files`);
     try {
@@ -132,16 +173,18 @@ app.post('/upload', upload.array('uploaded_file'), (req, res, next) => {
         `);
     }
 });
+
 app.listen(port, () => {
     console.log(`App listening at \n+ http://localhost:${port}`);
-    for (let iface of getNetworkInterfaces()) {
-        console.log(`+ http://${iface.f.address}:${port}`);
+    let ifaceCount = 0;
+    for (let iface of networkInterfaces) {
+        console.log(`+ [${ifaceCount++}] http://${iface.f.address}:${port}`);
     }
+    console.log("Press number infront of address to get qr for the link.");
 });
 
 process.on('SIGINT', () => {
-    if (true) {
-        console.info('Exiting...');
-        process.exit();
-    }
+    console.info('Exiting...');
+    process.exit();
+
 });
