@@ -176,6 +176,7 @@ app.post('/upload', upload.array('uploaded_file'), (req, res, next) => {
 });
 
 app.listen(port, () => {
+    console.log(`Sharing file in ${process.cwd()}`)
     console.log(`App listening at \n+ http://localhost:${port}`);
     let ifaceCount = 0;
     for (let iface of networkInterfaces) {
