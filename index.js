@@ -182,7 +182,7 @@ app.listen(port, () => {
     for (let iface of networkInterfaces) {
         console.log(`+ [${ifaceCount++}] http://${iface.f.address}:${port}`);
     }
-    console.log("Press number infront of address to get qr for the link.");
+    console.log("Press number in front of link to get qr for the link.");
 });
 
 process.on('SIGINT', () => {
