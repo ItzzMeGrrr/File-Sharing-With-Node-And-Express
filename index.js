@@ -93,7 +93,6 @@ const generateQR = async text => {
   }
 
 const networkInterfaces = getNetworkInterfaces();
-console.log(networkInterfaces.length)
 readline.emitKeypressEvents(process.stdin);
 
 if (process.stdin.isTTY) {

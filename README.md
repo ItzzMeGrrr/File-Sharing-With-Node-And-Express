@@ -5,7 +5,7 @@ This is a simple file sharing application built with Node.js and Express. It all
 1. Clone the repository
 2. Run `npm install` or `yarn install` to install the dependencies
 3. Run `npm start` or `yarn start` to start the server
-
+4. If you want to run app in a specific directory the run `npm start <path>` or `yarn start <path>`. It will list files in the given directory to reciever.
 
 ## Usage
 Once you run the application, you will get all the URLs the app is listening to.
