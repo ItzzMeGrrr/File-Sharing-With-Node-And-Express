@@ -84,11 +84,13 @@ const getNetworkInterfaces = () => {
     return list.length > 0 ? list : ilist;
 }
 
-const generateQR = (address) => {
-    QRCode.toString(address, { type: 'terminal' }, function (err, url) {
-        console.log(url);
-    })
-}
+const generateQR = async text => {
+    try {
+      console.log(await QRCode.toString(text))
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
 const networkInterfaces = getNetworkInterfaces();
 console.log(networkInterfaces.length)
