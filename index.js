@@ -57,10 +57,10 @@ const listToHtml = (list) => {
     let html = '';
     list.forEach((item) => {
         html += `
-        <ul class="list-group ">
-        <li class='list-group-item mw-100'>📄 <a href='/get/${item.name}'>
+        <ul class="list-group">
+        <li class='list-group-item mw-100 overflow-hidden'>📄 <a href='/get/${item.name}'>
         ${item.name}
-        </a><span class='float-end'>Size: ${item.size}</span></li>
+        </a><span class='float-end'>${item.size}</span></li>
         </ul>
         `;
     });
@@ -100,9 +100,12 @@ if (process.stdin.isTTY) {
 }
 
 process.stdin.on('keypress', (str, key) => {
-    if (key.ctrl && key.name === 'c' || key.esc) {
+    if (key.ctrl && key.name === 'c' || key.esc || key.name === 'q') {
         console.log("Exitting...")
         process.exit();
+    }
+    if (!str) {
+        return;
     }
     if (str.charCodeAt(0) != 13 && str.charCodeAt(0) != 10) {
         if (str > networkInterfaces.length - 1) {
@@ -122,7 +125,7 @@ app.use('/static', express.static('static'));
 const upload = multer({ dest: './received' });
 app.get('/', (req, res) => {
     let files = getFileInfoFromFolder(filesPath);
-    let template = readFileSync('./template.html');
+    let template = readFileSync('./templates/index.html');
     let html = template.toString().format(listToHtml(files));
     res.send(html);
 });
@@ -135,7 +138,7 @@ app.get('/get/:file', (req, res) => {
 });
 
 app.post('/upload', upload.array('uploaded_file'), (req, res, next) => {
-    console.log(`Received ${req.files.length} files`);
+    console.log(`Receiving ${req.files.length} files`);
     try {
         for (let file of req.files) {
             fs.renameSync(file.path, path.join("./received", file.originalname));
@@ -176,7 +179,7 @@ app.post('/upload', upload.array('uploaded_file'), (req, res, next) => {
 });
 
 app.listen(port, () => {
-    console.log(`Sharing file in ${process.cwd()}`)
+    console.log(`Sharing file in ${filesPath}`)
     console.log(`App listening at \n+ http://localhost:${port}`);
     let ifaceCount = 0;
     for (let iface of networkInterfaces) {
